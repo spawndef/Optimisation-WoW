@@ -31,7 +31,7 @@ public abstract class Item : INotifyPropertyChanged
     /// <summary>Page des Paramètres à ouvrir quand Windows bloque le réglage.</summary>
     public string? SettingsUri { get; init; }
     public Reco Reco { get; set; } = Reco.Recommande;
-    public string RecoText => Reco switch { Reco.Recommande => "★ Recommandé", Reco.AGarder => "À garder", _ => "Au choix" };
+    public string RecoText => Reco switch { Reco.Recommande => L.F("★ Recommandé", "★ Recommended"), Reco.AGarder => L.F("À garder", "Keep"), _ => L.F("Au choix", "Your choice") };
 
     bool _current, _desired, _canChange = true;
     string? _note;
@@ -56,8 +56,8 @@ public abstract class Item : INotifyPropertyChanged
     public bool HasNote => !string.IsNullOrEmpty(_note);
     public bool HasSettings => SettingsUri != null;
 
-    public virtual string LabelOn => "Désactivé";
-    public virtual string LabelOff => "Actif";
+    public virtual string LabelOn => L.F("Désactivé", "Off");
+    public virtual string LabelOff => L.F("Actif", "On");
     public string Status => Current ? LabelOn : LabelOff;
     public bool StatusIsGood => Current;
 
@@ -108,8 +108,8 @@ public class RegTweak : Item
         }
         if (blocked > 0)
             return Task.FromResult<string?>(HasSettings
-                ? "Windows bloque ce réglage : fais-le dans Paramètres (bouton à droite)."
-                : "Windows a refusé une partie de ce réglage.");
+                ? L.F("Windows bloque ce réglage : fais-le dans Paramètres (bouton à droite).", "Windows blocks this setting: change it in Settings (button on the right).")
+                : L.F("Windows a refusé une partie de ce réglage.", "Windows refused part of this setting."));
         return Task.FromResult<string?>(null);
     }
 }
@@ -120,8 +120,8 @@ public class AppItem : Item
 {
     public string Package { get; init; } = "";
     // « Absente » et pas « Retirée » : on ne peut pas savoir si elle a été enlevée ou jamais installée.
-    public override string LabelOn => "Absente";
-    public override string LabelOff => "Installée";
+    public override string LabelOn => L.F("Absente", "Not installed");
+    public override string LabelOff => L.F("Installée", "Installed");
 
     public override void Refresh() { /* lu en bloc par AppsService.RefreshAll */ }
 
@@ -130,7 +130,7 @@ public class AppItem : Item
         Current = !installed;
         // Une appli déjà retirée ne se réinstalle pas d'ici : c'est le Microsoft Store.
         CanChange = installed;
-        Note = installed ? null : "Pas sur ce PC. Pour l'avoir : Microsoft Store.";
+        Note = installed ? null : L.F("Pas sur ce PC. Pour l'avoir : Microsoft Store.", "Not on this PC. To get it: Microsoft Store.");
     }
 
     public override async Task<string?> ApplyAsync()
@@ -138,7 +138,7 @@ public class AppItem : Item
         if (!Desired || Current) return null;
         var (code, output) = await Shell.PowerShellAsync(
             $"$p = Get-AppxPackage -Name '{Package}'; if ($p) {{ $p | Remove-AppxPackage -ErrorAction Stop }}; 'ok'");
-        return code == 0 && output.Contains("ok") ? null : "Échec : " + Shell.FirstLine(output);
+        return code == 0 && output.Contains("ok") ? null : L.F("Échec : ", "Failed: ") + Shell.FirstLine(output);
     }
 }
 
@@ -152,8 +152,8 @@ public class StartupItem : Item
     public string ValueName { get; init; } = "";
     /// <summary>Pour une appli du Store : la clé qui garde son état.</summary>
     public string? TaskKey { get; init; }
-    public override string LabelOn => "Bloqué";
-    public override string LabelOff => "Démarre";
+    public override string LabelOn => L.F("Bloqué", "Blocked");
+    public override string LabelOff => L.F("Démarre", "Starts");
 
     const string Approved = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\";
 
@@ -181,7 +181,7 @@ public class StartupItem : Item
         if (Kind == StartKind.RunMachine)
         {
             CanChange = false;
-            Note = "Installé pour tout le PC : il faut les droits admin (Gestionnaire des tâches › Démarrage).";
+            Note = L.F("Installé pour tout le PC : il faut les droits admin (Gestionnaire des tâches › Démarrage).", "Installed for the whole PC: needs admin rights (Task Manager › Startup).");
         }
     }
 
@@ -205,9 +205,9 @@ public class StartupItem : Item
                 if (Desired) BitConverter.GetBytes(DateTime.UtcNow.ToFileTimeUtc()).CopyTo(data, 4);
                 k.SetValue(ValueName, data, RegistryValueKind.Binary);
             }
-            else return Task.FromResult<string?>("Il faut les droits admin.");
+            else return Task.FromResult<string?>(L.F("Il faut les droits admin.", "Needs admin rights."));
         }
-        catch (Exception e) { return Task.FromResult<string?>("Échec : " + e.Message); }
+        catch (Exception e) { return Task.FromResult<string?>(L.F("Échec : ", "Failed: ") + e.Message); }
         return Task.FromResult<string?>(null);
     }
 }

@@ -9,24 +9,16 @@ namespace OptimisationWoW;
 
 public partial class App : Application
 {
-    // Nombres à la française partout (28,0 Go au lieu de 28.0 Go), même si Windows est en anglais.
-    public App()
-    {
-        var fr = new CultureInfo("fr-CA");
-        CultureInfo.DefaultThreadCurrentCulture = fr;
-        CultureInfo.DefaultThreadCurrentUICulture = fr;
-        System.Threading.Thread.CurrentThread.CurrentCulture = fr;
-    }
-
-    // Couleurs de la faction enregistrée, posées avant la première fenêtre.
+    // Langue (textes + format des nombres) et couleurs de la faction, posées avant la première fenêtre.
     protected override void OnStartup(StartupEventArgs e)
     {
+        L.Apply(this, L.Load());
         Theme.Apply(this, Theme.Load());
         base.OnStartup(e);
     }
 }
 
-/// <summary>Thème Horde ou Alliance. Changer de faction enregistre le choix et relance l'app.</summary>
+/// <summary>Thème Horde ou Alliance, changé tout de suite et gardé en mémoire.</summary>
 public static class Theme
 {
     public const string Horde = "Horde", Alliance = "Alliance";

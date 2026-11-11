@@ -25,16 +25,16 @@ public class OpenApp
     public string Initial => Name.Length > 0 ? Name[..1].ToUpperInvariant() : "?";
     /// <summary>Gros programme sans fenêtre : souvent un jeu ou un launcher mal fermé.</summary>
     public bool Suspect => CanClose && !HasWindow && Reserved >= 3 * Go / 2;
-    public string Badge => KeepReason != null ? "À garder" : Suspect ? "⚠ Probablement mal fermé" : HasWindow ? "Fenêtre ouverte" : "En arrière-plan";
+    public string Badge => KeepReason != null ? L.F("À garder", "Keep") : Suspect ? L.F("⚠ Probablement mal fermé", "⚠ Probably not closed properly") : HasWindow ? L.F("Fenêtre ouverte", "Window open") : L.F("En arrière-plan", "In background");
     public string BadgeKind => KeepReason != null ? "keep" : Suspect ? "suspect" : "normal";
     public string RamText => Size(Ram);
-    public string ReservedText => Size(Reserved) + " réservés";
+    public string ReservedText => Size(Reserved) + L.F(" réservés", " reserved");
     public string Details =>
-        (string.IsNullOrWhiteSpace(Company) ? "Éditeur inconnu" : Company)
-        + $"  ·  {Pids.Count} processus"
+        (string.IsNullOrWhiteSpace(Company) ? L.F("Éditeur inconnu", "Unknown publisher") : Company)
+        + $"  ·  {Pids.Count} " + L.F("processus", Pids.Count > 1 ? "processes" : "process")
         + (KeepReason != null ? "  ·  " + KeepReason : "");
 
-    static string Size(long b) => b >= Go ? $"{b / (double)Go:0.0} Go" : $"{b / (double)(1 << 20):0} Mo";
+    static string Size(long b) => b >= Go ? $"{b / (double)Go:0.0} " + L.F("Go", "GB") : $"{b / (double)(1 << 20):0} " + L.F("Mo", "MB");
 }
 
 public static class OpenApps
@@ -44,18 +44,18 @@ public static class OpenApps
     static readonly int MySession = Process.GetCurrentProcess().SessionId;
 
     // Programmes non-Microsoft qu'il ne faut pas fermer d'ici.
-    static readonly (string match, string reason)[] Keep =
+    static (string match, string reason)[] Keep => new[]
     {
-        ("claude", "c'est Claude, avec qui tu parles"),
-        ("Optimisation-WoW", "c'est cette app"),
-        ("vgtray", "anti-triche Riot (Vanguard)"),
-        ("vgc", "anti-triche Riot (Vanguard)"),
-        ("EasyAntiCheat", "anti-triche"),
-        ("BEService", "anti-triche"),
-        ("RtkAud", "son Realtek"),
-        ("nvcontainer", "pilote NVIDIA"),
-        ("NVDisplay", "pilote NVIDIA"),
-        ("nvsphelper", "pilote NVIDIA"),
+        ("claude", L.F("Claude (assistant IA)", "Claude (AI assistant)")),
+        ("Optimisation-WoW", L.F("c'est cette app", "this app")),
+        ("vgtray", L.F("anti-triche Riot (Vanguard)", "Riot anti-cheat (Vanguard)")),
+        ("vgc", L.F("anti-triche Riot (Vanguard)", "Riot anti-cheat (Vanguard)")),
+        ("EasyAntiCheat", L.F("anti-triche", "anti-cheat")),
+        ("BEService", L.F("anti-triche", "anti-cheat")),
+        ("RtkAud", L.F("son Realtek", "Realtek audio")),
+        ("nvcontainer", L.F("pilote NVIDIA", "NVIDIA driver")),
+        ("NVDisplay", L.F("pilote NVIDIA", "NVIDIA driver")),
+        ("nvsphelper", L.F("pilote NVIDIA", "NVIDIA driver")),
     };
 
     /// <summary>Liste les programmes de ta session, hors Microsoft, du plus gourmand au moins gourmand.</summary>
@@ -103,12 +103,12 @@ public static class OpenApps
                     app.Reserved += p.PrivateMemorySize64;
 
                     var raw = p.ProcessName;
-                    if (p.Id == Me) app.KeepReason = "c'est cette app";
+                    if (p.Id == Me) app.KeepReason = L.F("c'est cette app", "this app");
                     var k = Keep.FirstOrDefault(x => raw.StartsWith(x.match, StringComparison.OrdinalIgnoreCase));
                     if (k.reason != null) app.KeepReason = k.reason;
-                    if (company.Contains("NVIDIA", StringComparison.OrdinalIgnoreCase)) app.KeepReason ??= "pilote NVIDIA";
-                    if (company.Contains("Realtek", StringComparison.OrdinalIgnoreCase)) app.KeepReason ??= "son Realtek";
-                    if (company.Contains("Anthropic", StringComparison.OrdinalIgnoreCase)) app.KeepReason ??= "c'est Claude, avec qui tu parles";
+                    if (company.Contains("NVIDIA", StringComparison.OrdinalIgnoreCase)) app.KeepReason ??= L.F("pilote NVIDIA", "NVIDIA driver");
+                    if (company.Contains("Realtek", StringComparison.OrdinalIgnoreCase)) app.KeepReason ??= L.F("son Realtek", "Realtek audio");
+                    if (company.Contains("Anthropic", StringComparison.OrdinalIgnoreCase)) app.KeepReason ??= L.F("Claude (assistant IA)", "Claude (AI assistant)");
                 }
                 catch { /* processus fermé entre-temps */ }
             }
@@ -146,8 +146,8 @@ public static class OpenApps
         var alive = app.Pids.Count(pid => { try { using var p = Process.GetProcessById(pid); return !p.HasExited; } catch { return false; } });
         if (alive == 0) return null;
         return refused > 0
-            ? "Windows refuse de le fermer d'ici (programme protégé, souvent par un anti-triche). Ferme-le avec le Gestionnaire des tâches."
-            : $"{alive} processus ne se sont pas encore fermés. Réessaie dans quelques secondes.";
+            ? L.F("Windows refuse de le fermer d'ici (programme protégé, souvent par un anti-triche). Ferme-le avec le Gestionnaire des tâches.", "Windows refuses to close it from here (protected program, often by an anti-cheat). Close it with Task Manager.")
+            : L.F($"{alive} processus ne se sont pas encore fermés. Réessaie dans quelques secondes.", $"{alive} process(es) have not closed yet. Try again in a few seconds.");
     }
 
     /// <summary>Un autre compte Windows resté ouvert sur ce PC, et ce qu'il garde en mémoire.</summary>
@@ -177,7 +177,7 @@ public static class OpenApps
             // Les 3 plus gros, avec un nom lisible (« FortniteClient-Win64-Shipping » → « FortniteClient »).
             var top = byName.Where(kv => kv.Value >= 200L << 20)
                 .OrderByDescending(kv => kv.Value).Take(3)
-                .Select(kv => $"{kv.Key.Split('-')[0]} ({kv.Value / (double)(1L << 30):0.0} Go)");
+                .Select(kv => $"{kv.Key.Split('-')[0]} ({kv.Value / (double)(1L << 30):0.0} " + L.F("Go", "GB") + ")");
             result.Add(new OtherSession(user, active, total, string.Join(", ", top)));
         }
         return result.OrderByDescending(s => s.Reserved).ToList();

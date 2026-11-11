@@ -1,12 +1,19 @@
 # ⚔ Optimisation de Windows pour World of Warcraft
+### Windows Optimizer for World of Warcraft
+
+**[🇫🇷 Français](#-français)** · **[🇬🇧 English](#-english)**
+
+| Horde (FR) | Alliance (FR) | English |
+|---|---|---|
+| ![Thème Horde](docs/horde.png) | ![Thème Alliance](docs/alliance.png) | ![English](docs/english.png) |
+
+---
+
+## 🇫🇷 Français
 
 Application **gratuite** pour Windows 10 et 11 qui prépare ton PC pour **World of Warcraft** : moins de saccades, moins de pubs Windows, et un œil sur ce qui mange ta mémoire pendant que tu joues.
 
-Thème **Horde** ou **Alliance** au choix, en un clic. 🛡
-
-| Horde | Alliance |
-|---|---|
-| ![Thème Horde](docs/horde.png) | ![Thème Alliance](docs/alliance.png) |
+Thème **Horde** ou **Alliance** au choix, en un clic. 🛡 L'app est en **français et en anglais** (bouton FR / EN en haut ; au premier lancement, elle suit la langue de Windows).
 
 > Application non officielle, sans lien avec Blizzard Entertainment. *World of Warcraft* est une marque de Blizzard Entertainment, Inc.
 
@@ -75,5 +82,57 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 
 ---
 
-### English
-Free, unofficial Windows optimizer for World of Warcraft (French UI). FPS cap, background FPS, DirectX 12, GPU preference, WoW cache cleanup, Windows debloat, event log explained, memory hogs and forgotten Windows sessions. Horde or Alliance theme. No admin rights needed. Not affiliated with Blizzard Entertainment.
+## 🇬🇧 English
+
+A **free** app for Windows 10 and 11 that gets your PC ready for **World of Warcraft**: less stutter, fewer Windows ads, and an eye on what eats your memory while you play.
+
+**Horde** or **Alliance** theme, one click. 🛡 The app is in **English and French** (FR / EN button at the top; on first launch it follows your Windows language).
+
+> Unofficial application, not affiliated with Blizzard Entertainment. *World of Warcraft* is a trademark of Blizzard Entertainment, Inc.
+
+### What it does
+
+#### 🎮 World of Warcraft
+Finds WoW by itself (Retail, Classic, Classic Era, Forever…) and offers a checkbox for each:
+
+| Setting | Why |
+|---|---|
+| **FPS cap = your screen** (e.g. 120 Hz) | The graphics card stops running at 100% for nothing: less heat, less stutter. |
+| **30 FPS in the background** | WoW makes room for the rest when you switch to Discord or the browser. |
+| **DirectX 12** | WoW's newest graphics engine. |
+| **High-performance GPU for WoW** | Windows never uses the CPU's built-in graphics for WoW. |
+| **Render scale 80%** *(your choice)* | Big FPS gain at 1440p and 4K. |
+| **VSync off** *(your choice)* | Less input lag with the FPS cap. |
+| **Clear WoW cache** | Often fixes display and loading glitches. |
+
+Settings are written to `WTF\Config.wtf`. **WoW must be closed** (it rewrites its settings when it exits). A copy of the original file is kept next to it.
+
+#### 🪟 Windows
+- Game DVR (background recording), Game Mode
+- Windows ads and “suggestions”, silently installed apps, Start menu recommendations, targeted ads
+- Bing and search highlights, Copilot button, widgets
+- Startup programs (block / unblock)
+- Uninstall useless Microsoft apps (never the Xbox apps: some games need them)
+- Temporary files cleanup
+- **★ Check recommended**: for people who don't know what to pick, only safe changes
+
+#### 📋 Windows Event Log
+Windows errors grouped and **explained in plain words**: unexpected restarts, blue screens, graphics driver crashes, hardware errors, disks, crashed apps. With a summary and a verdict.
+
+#### 📦 Open apps
+The **non-Microsoft** programs using the most memory, with a **Close** button. Highlights in yellow:
+- big programs **without a window**, often a game or launcher that wasn't closed properly;
+- **another Windows account still signed in** in the background (“Switch user”) that keeps its memory.
+
+### Safety
+- **No admin rights needed**: the app only changes your Windows account settings and WoW's files.
+- **Nothing changes until you click** “Apply”. Each line shows the real current state.
+- **Automatic backup** of settings before every change (“Backups” button), plus a copy of `Config.wtf`.
+- No data sent over the Internet. No ads. Open source.
+
+### Install
+1. Download `Optimisation-WoW.exe` from the [Releases](../../releases).
+2. Run it. That's it.
+
+### Credits
+Made by **GhostWalk Studio**. **Cinzel** and **Cinzel Decorative** fonts © The Cinzel Project Authors, [SIL Open Font License 1.1](Fonts/OFL.txt). [MIT](LICENSE) license.

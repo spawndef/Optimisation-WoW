@@ -44,10 +44,35 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => await UpdateTemp();
         Loaded += async (_, _) => await LoadWow();
 
-        // Faction actuelle : cochée sans déclencher de relance.
+        // Faction et langue actuelles : cochées sans déclencher de changement.
         loadingFaction = true;
         (Theme.Load() == Theme.Alliance ? FactionAlliance : FactionHorde).IsChecked = true;
+        (L.En ? LangEn : LangFr).IsChecked = true;
         loadingFaction = false;
+    }
+
+    static string Pending(int n) => n == 0
+        ? L.F("Aucun changement en attente.", "No pending changes.")
+        : L.F($"{n} changement{(n > 1 ? "s" : "")} en attente", $"{n} pending change{(n > 1 ? "s" : "")}");
+
+    // ═════════════════════════════ Langue ═════════════════════════════
+
+    /// <summary>FR ↔ EN tout de suite : les textes de la fenêtre changent seuls, ceux faits par le code sont refaits.</summary>
+    async void Lang_Checked(object sender, RoutedEventArgs e)
+    {
+        if (loadingFaction || LangFr == null) return;
+        var lang = LangEn.IsChecked == true ? "en" : "fr";
+        if ((lang == "en") == L.En) return;
+        L.Save(lang);
+        L.Apply(Application.Current, lang);
+
+        ResultText.Visibility = WowResultText.Visibility = AppsResult.Visibility = Visibility.Collapsed;
+        SysInfo.Text = await Catalog.SystemInfo();
+        await LoadWow();
+        await LoadOptimisation();
+        await UpdateTemp();
+        if (journal != null) await LoadJournal();
+        if (AppsPage.Visibility == Visibility.Visible) await LoadApps();
     }
 
     // ═════════════════════════════ Faction ═════════════════════════════
@@ -109,12 +134,12 @@ public partial class MainWindow : Window
         var running = flavor.Running;
         WowTitle.Text = "World of Warcraft · " + flavor.Name;
         WowPath.Text = flavor.Folder;
-        WowState.Text = running ? "● WoW est ouvert : ferme-le pour appliquer" : "● WoW est fermé : prêt";
+        WowState.Text = running ? L.F("● WoW est ouvert : ferme-le pour appliquer", "● WoW is running: close it to apply") : L.F("● WoW est fermé : prêt", "● WoW is closed: ready");
         WowState.Foreground = (System.Windows.Media.Brush)FindResource(running ? "Gold" : "Ok");
         WowStatePill.Background = (System.Windows.Media.Brush)FindResource(running ? "GoldSoft" : "OkSoft");
         var cache = flavor.CacheSize();
-        WowInfo.Text = $"{flavor.AddOns} addon{(flavor.AddOns > 1 ? "s" : "")}  ·  cache {Size(cache)}  ·  écran {hz} Hz";
-        CacheBtnWowText.Text = $"Vider le cache ({Size(cache)})";
+        WowInfo.Text = $"{flavor.AddOns} addon{(flavor.AddOns > 1 ? "s" : "")}  ·  cache {Size(cache)}  ·  " + L.F("écran", "screen") + $" {hz} Hz";
+        CacheBtnWowText.Text = L.F($"Vider le cache ({Size(cache)})", $"Clear cache ({Size(cache)})");
     }
 
     void WowItem_Changed(object? sender, PropertyChangedEventArgs e)
@@ -125,10 +150,10 @@ public partial class MainWindow : Window
     void UpdateWowPending()
     {
         var n = wowItems.Count(i => i.Changed);
-        WowPendingText.Text = n == 0 ? "Aucun changement en attente." : $"{n} changement{(n > 1 ? "s" : "")} en attente";
+        WowPendingText.Text = Pending(n);
         WowApplyBtn.IsEnabled = n > 0;
         WowCancelBtn.IsEnabled = n > 0;
-        WowApplyBtn.Content = n > 0 ? $"Appliquer ({n})" : "Appliquer";
+        WowApplyBtn.Content = n > 0 ? L.F($"Appliquer ({n})", $"Apply ({n})") : L.F("Appliquer", "Apply");
     }
 
     void WowRecommend_Click(object sender, RoutedEventArgs e)
@@ -137,8 +162,8 @@ public partial class MainWindow : Window
         WowResultText.Visibility = Visibility.Visible;
         WowResultText.Foreground = (System.Windows.Media.Brush)FindResource("Brand2");
         WowResultText.Text = wowItems.Any(i => i.Changed)
-            ? "Les lignes colorées vont changer. Vérifie, puis clique « Appliquer »."
-            : "Tout ce qui est recommandé est déjà fait. 👍";
+            ? L.F("Les lignes colorées vont changer. Vérifie, puis clique « Appliquer ».", "The highlighted lines will change. Review, then click “Apply”.")
+            : L.F("Tout ce qui est recommandé est déjà fait. 👍", "Everything recommended is already done. 👍");
     }
 
     void WowCancel_Click(object sender, RoutedEventArgs e)
@@ -153,8 +178,8 @@ public partial class MainWindow : Window
         // Config.wtf : WoW doit être fermé. La préférence de carte graphique, elle, peut se faire tout de suite.
         if (flavor.Running && todo.OfType<WtfTweak>().Any())
         {
-            MessageBox.Show(this, "Ferme World of Warcraft avant d'appliquer : il réécrit ses réglages en quittant et effacerait les changements.",
-                "WoW est ouvert", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, L.F("Ferme World of Warcraft avant d'appliquer : il réécrit ses réglages en quittant et effacerait les changements.", "Close World of Warcraft before applying: it rewrites its settings when it exits and would erase the changes."),
+                L.F("WoW est ouvert", "WoW is running"), MessageBoxButton.OK, MessageBoxImage.Information);
             RefreshWowCard();
             return;
         }
@@ -172,8 +197,8 @@ public partial class MainWindow : Window
         WowResultText.Visibility = Visibility.Visible;
         WowResultText.Foreground = (System.Windows.Media.Brush)FindResource(errors.Count == 0 ? "Ok" : "Gold");
         WowResultText.Text = errors.Count == 0
-            ? $"✓ {ok} réglage{(ok > 1 ? "s" : "")} appliqué{(ok > 1 ? "s" : "")}. Lance WoW : c'est pris en compte au démarrage."
-            : $"{ok} appliqué(s), {errors.Count} refusé(s) : voir les notes en jaune.";
+            ? L.F($"✓ {ok} réglage{(ok > 1 ? "s" : "")} appliqué{(ok > 1 ? "s" : "")}. Lance WoW : c'est pris en compte au démarrage.", $"✓ {ok} setting{(ok > 1 ? "s" : "")} applied. Launch WoW: it takes effect at startup.")
+            : L.F($"{ok} appliqué(s), {errors.Count} refusé(s) : voir les notes en jaune.", $"{ok} applied, {errors.Count} refused: see the yellow notes.");
     }
 
     void WowCache_Click(object sender, RoutedEventArgs e)
@@ -184,20 +209,20 @@ public partial class MainWindow : Window
         RefreshWowCard();
         WowResultText.Visibility = Visibility.Visible;
         WowResultText.Foreground = (System.Windows.Media.Brush)FindResource(err == null ? "Ok" : "Gold");
-        WowResultText.Text = err ?? $"✓ Cache vidé ({Size(before)}). WoW le refera au prochain lancement, le premier chargement sera un peu plus long.";
+        WowResultText.Text = err ?? L.F($"✓ Cache vidé ({Size(before)}). WoW le refera au prochain lancement, le premier chargement sera un peu plus long.", $"✓ Cache cleared ({Size(before)}). WoW will rebuild it next launch; the first load will be a bit longer.");
     }
 
     async void WowPick_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new Microsoft.Win32.OpenFolderDialog { Title = "Choisis le dossier « World of Warcraft »" };
+        var dlg = new Microsoft.Win32.OpenFolderDialog { Title = L.F("Choisis le dossier « World of Warcraft »", "Choose the “World of Warcraft” folder") };
         if (dlg.ShowDialog(this) != true) return;
         var dir = dlg.FolderName;
         // On accepte aussi un dossier de version (_retail_…) : on remonte d'un cran.
         if (Wow.FlavorsIn(dir).Count == 0 && Directory.GetParent(dir) is { } parent && Wow.FlavorsIn(parent.FullName).Count > 0) dir = parent.FullName;
         if (Wow.FlavorsIn(dir).Count == 0)
         {
-            MessageBox.Show(this, "Je ne trouve pas WoW dans ce dossier. Choisis celui qui contient _retail_, _classic_…",
-                "Dossier de WoW", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, L.F("Je ne trouve pas WoW dans ce dossier. Choisis celui qui contient _retail_, _classic_…", "WoW was not found in this folder. Pick the one that contains _retail_, _classic_…"),
+                L.F("Dossier de WoW", "WoW folder"), MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
         Settings.Set("wowRoot", dir);
@@ -236,14 +261,14 @@ public partial class MainWindow : Window
         var removed = apps.Count(a => a.Current);
         var sections = new List<Section>
         {
-            new() { Title = "Jeu", Subtitle = "Les réglages qui comptent pour les FPS.", Items = Pick(tweaks.Where(t => t.Section == "Jeu")) },
-            new() { Title = "Pubs et suggestions", Subtitle = "Tout ce que Windows affiche pour te vendre quelque chose.", Items = Pick(tweaks.Where(t => t.Section == "Pubs et suggestions")) },
-            new() { Title = "Recherche et barre des tâches", Subtitle = "Bing, Copilot, widgets et news.", Items = Pick(tweaks.Where(t => t.Section == "Recherche et barre des tâches")) },
-            new() { Title = "Démarrage", AllowAll = Simple,
-                    Subtitle = "Programmes lancés avec Windows. Cocher = bloqué au démarrage (le programme reste installé, tu peux l'ouvrir toi-même).",
+            new() { Title = L.F("Jeu", "Gaming"), Subtitle = L.F("Les réglages qui comptent pour les FPS.", "The settings that matter for FPS."), Items = Pick(tweaks.Where(t => t.Section == "Jeu")) },
+            new() { Title = L.F("Pubs et suggestions", "Ads and suggestions"), Subtitle = L.F("Tout ce que Windows affiche pour te vendre quelque chose.", "Everything Windows shows you to sell you something."), Items = Pick(tweaks.Where(t => t.Section == "Pubs et suggestions")) },
+            new() { Title = L.F("Recherche et barre des tâches", "Search and taskbar"), Subtitle = L.F("Bing, Copilot, widgets et news.", "Bing, Copilot, widgets and news."), Items = Pick(tweaks.Where(t => t.Section == "Recherche et barre des tâches")) },
+            new() { Title = L.F("Démarrage", "Startup"), AllowAll = Simple,
+                    Subtitle = L.F("Programmes lancés avec Windows. Cocher = bloqué au démarrage (le programme reste installé, tu peux l'ouvrir toi-même).", "Programs launched with Windows. Checked = blocked at startup (the program stays installed, you can open it yourself)."),
                     Items = Pick(startup) },
-            new() { Title = "Applis Microsoft", AllowAll = Simple,
-                    Subtitle = $"Cocher = désinstaller. {removed} déjà absente{(removed > 1 ? "s" : "")} de ce PC. Les applis Xbox ne sont pas listées : des jeux en ont besoin.",
+            new() { Title = L.F("Applis Microsoft", "Microsoft apps"), AllowAll = Simple,
+                    Subtitle = L.F($"Cocher = désinstaller. {removed} déjà absente{(removed > 1 ? "s" : "")} de ce PC. Les applis Xbox ne sont pas listées : des jeux en ont besoin.", $"Checked = uninstall. {removed} already missing from this PC. Xbox apps are not listed: some games need them."),
                     Items = Pick(apps.OrderBy(a => a.Current)) },
         };
         SectionsList.ItemsSource = sections.Where(s => s.Items.Count > 0).ToList();
@@ -262,8 +287,8 @@ public partial class MainWindow : Window
         ResultText.Visibility = Visibility.Visible;
         ResultText.Foreground = (System.Windows.Media.Brush)FindResource("Brand2");
         ResultText.Text = n == 0
-            ? "Tout ce qui est recommandé est déjà fait. 👍"
-            : "Les cases en violet vont changer. Vérifie, puis clique « Appliquer ».";
+            ? L.F("Tout ce qui est recommandé est déjà fait. 👍", "Everything recommended is already done. 👍")
+            : L.F("Les lignes colorées vont changer. Vérifie, puis clique « Appliquer ».", "The highlighted lines will change. Review, then click “Apply”.");
     }
 
     void Item_Changed(object? sender, PropertyChangedEventArgs e)
@@ -274,10 +299,10 @@ public partial class MainWindow : Window
     void UpdatePending()
     {
         var n = All.Count(i => i.Changed);
-        PendingText.Text = n == 0 ? "Aucun changement en attente." : $"{n} changement{(n > 1 ? "s" : "")} en attente";
+        PendingText.Text = Pending(n);
         ApplyBtn.IsEnabled = n > 0 && !busy;
         CancelBtn.IsEnabled = n > 0 && !busy;
-        ApplyBtn.Content = n > 0 ? $"Appliquer ({n})" : "Appliquer";
+        ApplyBtn.Content = n > 0 ? L.F($"Appliquer ({n})", $"Apply ({n})") : L.F("Appliquer", "Apply");
     }
 
     async void Apply_Click(object sender, RoutedEventArgs e)
@@ -285,14 +310,14 @@ public partial class MainWindow : Window
         var todo = All.Where(i => i.Changed).ToList();
         var removing = todo.OfType<AppItem>().Where(a => a.Desired).Select(a => a.Title).ToList();
         if (removing.Count > 0 && MessageBox.Show(this,
-                "Ces applis vont être désinstallées :\n\n• " + string.Join("\n• ", removing) +
-                "\n\nTu pourras les réinstaller depuis le Microsoft Store.",
-                "Désinstaller ?", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
+                L.F("Ces applis vont être désinstallées :", "These apps will be uninstalled:") + "\n\n• " + string.Join("\n• ", removing) +
+                "\n\n" + L.F("Tu pourras les réinstaller depuis le Microsoft Store.", "You can reinstall them from the Microsoft Store."),
+                L.F("Désinstaller ?", "Uninstall?"), MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
             return;
 
         busy = true;
         UpdatePending();
-        ApplyBtn.Content = "Application…";
+        ApplyBtn.Content = L.F("Application…", "Applying…");
         var errors = new List<string>();
         foreach (var item in todo)
         {
@@ -315,8 +340,8 @@ public partial class MainWindow : Window
         var ok = todo.Count - errors.Count;
         ResultText.Visibility = Visibility.Visible;
         ResultText.Foreground = (System.Windows.Media.Brush)FindResource(errors.Count == 0 ? "Ok" : "Gold");
-        ResultText.Text = (errors.Count == 0 ? $"✓ {ok} changement{(ok > 1 ? "s" : "")} appliqué{(ok > 1 ? "s" : "")}. " : $"{ok} appliqué(s), {errors.Count} refusé(s) — voir les notes en jaune. ")
-                          + "Certains réglages (barre des tâches, menu Démarrer) s'affichent après une déconnexion ou un redémarrage.";
+        ResultText.Text = (errors.Count == 0 ? L.F($"✓ {ok} changement{(ok > 1 ? "s" : "")} appliqué{(ok > 1 ? "s" : "")}. ", $"✓ {ok} change{(ok > 1 ? "s" : "")} applied. ") : L.F($"{ok} appliqué(s), {errors.Count} refusé(s) — voir les notes en jaune. ", $"{ok} applied, {errors.Count} refused — see the yellow notes. "))
+                          + L.F("Certains réglages (barre des tâches, menu Démarrer) s'affichent après une déconnexion ou un redémarrage.", "Some settings (taskbar, Start menu) show up after signing out or restarting.");
     }
 
     void Cancel_Click(object sender, RoutedEventArgs e)
@@ -352,23 +377,23 @@ public partial class MainWindow : Window
     async Task UpdateTemp()
     {
         var size = await Task.Run(Catalog.TempSize);
-        TempText.Text = $"Fichiers temporaires de ton compte : {Size(size)}. Les fichiers utilisés par un programme ouvert sont laissés en place.";
-        CleanBtnText.Text = $"Vider ({Size(size)})";
+        TempText.Text = L.F($"Fichiers temporaires de ton compte : {Size(size)}. Les fichiers utilisés par un programme ouvert sont laissés en place.", $"Temporary files in your account: {Size(size)}. Files used by an open program are left alone.");
+        CleanBtnText.Text = L.F($"Vider ({Size(size)})", $"Clear ({Size(size)})");
         CleanBtn.IsEnabled = size > 0;
     }
 
     async void Clean_Click(object sender, RoutedEventArgs e)
     {
         CleanBtn.IsEnabled = false;
-        CleanBtnText.Text = "Nettoyage…";
+        CleanBtnText.Text = L.F("Nettoyage…", "Cleaning…");
         var freed = await Task.Run(Catalog.CleanTemp);
         await UpdateTemp();
-        TempText.Text = $"✓ {Size(freed)} libérés. " + TempText.Text;
+        TempText.Text = L.F($"✓ {Size(freed)} libérés. ", $"✓ {Size(freed)} freed. ") + TempText.Text;
     }
 
     static string Size(long bytes) => bytes >= 1L << 30
-        ? $"{bytes / (double)(1L << 30):0.0} Go"
-        : $"{bytes / (double)(1L << 20):0} Mo";
+        ? $"{bytes / (double)(1L << 30):0.0} " + L.F("Go", "GB")
+        : $"{bytes / (double)(1L << 20):0} " + L.F("Mo", "MB");
 
     // ═════════════════════════════ Journal ═════════════════════════════
 
@@ -376,7 +401,7 @@ public partial class MainWindow : Window
 
     async Task LoadJournal()
     {
-        VerdictText.Text = "Lecture du journal…";
+        VerdictText.Text = L.F("Lecture du journal…", "Reading the log…");
         SummaryText.Text = "";
         EventsList.ItemsSource = null;
         var hours = Hours;
@@ -397,7 +422,7 @@ public partial class MainWindow : Window
         var list = journal.Groups.Where(g => ShowNoise.IsChecked == true || !g.IsNoise).ToList();
         EventsList.ItemsSource = list;
         EventsEmpty.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        DetailSub.Text = $"{journal.Total} message{(journal.Total > 1 ? "s" : "")} regroupés en {journal.Groups.Count} sortes, du plus grave au moins grave.";
+        DetailSub.Text = L.F($"{journal.Total} message{(journal.Total > 1 ? "s" : "")} regroupés en {journal.Groups.Count} sortes, du plus grave au moins grave.", $"{journal.Total} message{(journal.Total > 1 ? "s" : "")} grouped into {journal.Groups.Count} kinds, most serious first.");
     }
 
     async void Nav_Checked(object sender, RoutedEventArgs e)
@@ -433,34 +458,38 @@ public partial class MainWindow : Window
         {
             var o = big[0];
             OtherSessionsTitle.Text = big.Count == 1
-                ? $"⚠ Le compte « {o.User} » est resté ouvert : {o.Reserved / (double)(1L << 30):0.0} Go"
-                : $"⚠ {big.Count} autres comptes Windows sont restés ouverts : {big.Sum(x => x.Reserved) / (double)(1L << 30):0.0} Go";
+                ? L.F($"⚠ Le compte « {o.User} » est resté ouvert : {o.Reserved / (double)(1L << 30):0.0} Go", $"⚠ The “{o.User}” account is still signed in: {o.Reserved / (double)(1L << 30):0.0} GB")
+                : L.F($"⚠ {big.Count} autres comptes Windows sont restés ouverts : {big.Sum(x => x.Reserved) / (double)(1L << 30):0.0} Go", $"⚠ {big.Count} other Windows accounts are still signed in: {big.Sum(x => x.Reserved) / (double)(1L << 30):0.0} GB");
             OtherSessionsText.Text =
-                string.Join("\n", big.Select(x => $"• {x.User}{(x.Active ? "" : " (en arrière-plan)")} : {x.TopApps}"))
-                + "\nSes programmes tournent encore, même si on ne les voit pas, et prennent la mémoire de ton jeu. "
+                string.Join("\n", big.Select(x => $"• {x.User}{(x.Active ? "" : L.F(" (en arrière-plan)", " (in background)"))}{L.F(" : ", ": ")}{x.TopApps}"))
+                + "\n" + L.F("Ses programmes tournent encore, même si on ne les voit pas, et prennent la mémoire de ton jeu. "
                 + "Pour libérer la mémoire, ce compte doit se déconnecter (menu Démarrer › son nom › Se déconnecter), "
                 + "au lieu de « Changer d'utilisateur ». Ou : Gestionnaire des tâches › Utilisateurs › clic droit sur le compte › Se déconnecter. "
-                + "Attention : ce qui n'est pas sauvegardé dans ce compte sera perdu.";
+                + "Attention : ce qui n'est pas sauvegardé dans ce compte sera perdu.",
+                "Its programs are still running, even if you can't see them, and take your game's memory. "
+                + "To free the memory, that account must sign out (Start menu › its name › Sign out) "
+                + "instead of “Switch user”. Or: Task Manager › Users › right-click the account › Sign off. "
+                + "Warning: anything unsaved in that account will be lost.");
         }
         var pct = used / total;
 
-        MemText.Text = $"{used:0.0} Go utilisés sur {total:0} Go";
+        MemText.Text = L.F($"{used:0.0} Go utilisés sur {total:0} Go", $"{used:0.0} GB used of {total:0} GB");
         MemPercent.Text = $"{pct:P0}";
         MemUsedCol.Width = new GridLength(Math.Max(used, 0.01), GridUnitType.Star);
         MemFreeCol.Width = new GridLength(Math.Max(total - used, 0.01), GridUnitType.Star);
         var key = pct >= .85 ? "Bad" : pct >= .70 ? "Gold" : "Ok";
         MemPercent.Foreground = (System.Windows.Media.Brush)FindResource(key);
         MemTip.Text = pct >= .85
-            ? "Presque pleine : Windows doit écrire sur le disque pour faire de la place, et les jeux saccadent. Ferme ce qui ne sert pas."
+            ? L.F("Presque pleine : Windows doit écrire sur le disque pour faire de la place, et les jeux saccadent. Ferme ce qui ne sert pas.", "Almost full: Windows has to write to disk to make room, and games stutter. Close what you don't need.")
             : pct >= .70
-                ? "Bien remplie. Avant de jouer, ferme ce qui ne sert pas."
-                : "Assez de place pour jouer.";
+                ? L.F("Bien remplie. Avant de jouer, ferme ce qui ne sert pas.", "Quite full. Before playing, close what you don't need.")
+                : L.F("Assez de place pour jouer.", "Enough room to play.");
 
         AppsList.ItemsSource = list;
         var suspects = list.Count(a => a.Suspect);
-        AppsSub.Text = $"{list.Count} programmes hors Microsoft"
-                       + (suspects > 0 ? $"  ·  {suspects} probablement mal fermé{(suspects > 1 ? "s" : "")} (en jaune)" : "  ·  aucun programme suspect")
-                       + "  ·  mis à jour toutes les 5 secondes";
+        AppsSub.Text = L.F($"{list.Count} programmes hors Microsoft", $"{list.Count} non-Microsoft programs")
+                       + (suspects > 0 ? L.F($"  ·  {suspects} probablement mal fermé{(suspects > 1 ? "s" : "")} (en jaune)", $"  ·  {suspects} probably not closed properly (in yellow)") : L.F("  ·  aucun programme suspect", "  ·  nothing suspicious"))
+                       + L.F("  ·  mis à jour toutes les 5 secondes", "  ·  updated every 5 seconds");
     }
 
     async void AppsReload_Click(object sender, RoutedEventArgs e) => await LoadApps();
@@ -471,13 +500,13 @@ public partial class MainWindow : Window
     {
         if ((sender as FrameworkElement)?.DataContext is not OpenApp app) return;
         if (MessageBox.Show(this,
-                $"Fermer « {app.Name} » ?\n\nCe qui n'est pas sauvegardé dans ce programme sera perdu.",
-                "Fermer le programme", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
+                L.F($"Fermer « {app.Name} » ?\n\nCe qui n'est pas sauvegardé dans ce programme sera perdu.", $"Close “{app.Name}”?\n\nAnything unsaved in this program will be lost."),
+                L.F("Fermer le programme", "Close program"), MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
             return;
 
         closingApp = true;
         ((Button)sender).IsEnabled = false;
-        ((Button)sender).Content = "Fermeture…";
+        ((Button)sender).Content = L.F("Fermeture…", "Closing…");
         var before = OpenApps.Memory().used;
         var err = await OpenApps.Close(app);
         closingApp = false;
@@ -487,8 +516,8 @@ public partial class MainWindow : Window
         AppsResult.Visibility = Visibility.Visible;
         AppsResult.Foreground = (System.Windows.Media.Brush)FindResource(err == null ? "Ok" : "Gold");
         AppsResult.Text = err == null
-            ? $"✓ « {app.Name} » est fermé." + (freed > 0.05 ? $" {freed:0.0} Go de mémoire libérés." : "")
-            : $"« {app.Name} » : {err}";
+            ? L.F($"✓ « {app.Name} » est fermé.", $"✓ “{app.Name}” is closed.") + (freed > 0.05 ? L.F($" {freed:0.0} Go de mémoire libérés.", $" {freed:0.0} GB of memory freed.") : "")
+            : L.F($"« {app.Name} » : {err}", $"“{app.Name}”: {err}");
     }
 
     async void Period_Checked(object sender, RoutedEventArgs e)

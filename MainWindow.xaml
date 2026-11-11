@@ -1,7 +1,7 @@
 <Window x:Class="OptimisationWoW.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Optimisation de Windows pour World of Warcraft" Icon="icone.ico"
+        Title="{DynamicResource s.x01}" Icon="icone.ico"
         Width="1200" Height="820" MinWidth="940" MinHeight="600"
         WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
         Background="{DynamicResource Bg}" FontFamily="{StaticResource Font}" Foreground="{StaticResource Ink}"
@@ -24,7 +24,7 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <CheckBox Style="{StaticResource GwCheck}" IsChecked="{Binding Desired, Mode=TwoWay}" IsEnabled="{Binding CanChange}"
-                    VerticalAlignment="Top" Margin="0,1,14,0" ToolTip="Coché = on désactive / on retire"/>
+                    VerticalAlignment="Top" Margin="0,1,14,0" ToolTip="{DynamicResource s.x02}"/>
           <StackPanel Grid.Column="1">
             <WrapPanel>
               <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource Ink}"
@@ -37,7 +37,7 @@
             <TextBlock Text="{Binding Note}" FontSize="12" Foreground="{StaticResource Gold}" TextWrapping="Wrap" Margin="0,5,0,0"
                        Visibility="{Binding HasNote, Converter={StaticResource BoolToVis}}"/>
           </StackPanel>
-          <Button Grid.Column="2" Style="{StaticResource Ghost}" Content="Ouvrir Paramètres" Padding="10,5" FontSize="12"
+          <Button Grid.Column="2" Style="{StaticResource Ghost}" Content="{DynamicResource s.x03}" Padding="10,5" FontSize="12"
                   Margin="12,0,0,0" VerticalAlignment="Center" Click="OpenSettings_Click"
                   Visibility="{Binding HasSettings, Converter={StaticResource BoolToVis}}"/>
           <Border Grid.Column="3" x:Name="pill" CornerRadius="999" Padding="10,4" Margin="12,0,0,0" MinWidth="90"
@@ -90,7 +90,7 @@
               <TextBlock Text="  ·  " FontSize="11" Foreground="{StaticResource Ink3}"/>
               <TextBlock Text="{Binding Source}" FontSize="11" Foreground="{StaticResource Ink3}"/>
               <TextBlock Text="  ·  " FontSize="11" Foreground="{StaticResource Ink3}"/>
-              <ToggleButton x:Name="det" Style="{StaticResource Toggle}" Content="Voir le message"/>
+              <ToggleButton x:Name="det" Style="{StaticResource Toggle}" Content="{DynamicResource s.x04}"/>
             </WrapPanel>
             <Border Background="{DynamicResource Bg2}" CornerRadius="10" Padding="12,10" Margin="0,8,0,0"
                     Visibility="{Binding IsChecked, ElementName=det, Converter={StaticResource BoolToVis}}">
@@ -136,7 +136,7 @@
                        Foreground="{StaticResource Ink}" HorizontalAlignment="Right"/>
             <TextBlock Text="{Binding ReservedText}" FontSize="11" Foreground="{StaticResource Ink3}" HorizontalAlignment="Right"/>
           </StackPanel>
-          <Button Grid.Column="3" x:Name="closeBtn" Style="{StaticResource Ghost}" Content="Fermer" Click="CloseApp_Click"
+          <Button Grid.Column="3" x:Name="closeBtn" Style="{StaticResource Ghost}" Content="{DynamicResource s.x05}" Click="CloseApp_Click"
                   VerticalAlignment="Center" MinWidth="86" Visibility="{Binding CanClose, Converter={StaticResource BoolToVis}}"/>
         </Grid>
       </Border>
@@ -183,13 +183,17 @@
     <Border Background="{DynamicResource Bg2}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
       <DockPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+            <RadioButton x:Name="LangFr" Style="{StaticResource Pill}" GroupName="lang" Content="FR" Checked="Lang_Checked" ToolTip="Français"/>
+            <RadioButton x:Name="LangEn" Style="{StaticResource Pill}" GroupName="lang" Content="EN" Checked="Lang_Checked" ToolTip="English"/>
+          </StackPanel>
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
             <RadioButton x:Name="FactionHorde" Style="{StaticResource Pill}" GroupName="faction" Content="⚔  Horde" Checked="Faction_Checked"/>
             <RadioButton x:Name="FactionAlliance" Style="{StaticResource Pill}" GroupName="faction" Content="🛡  Alliance" Checked="Faction_Checked"/>
           </StackPanel>
-          <Button Style="{StaticResource Chrome}" Content="&#xE921;" Click="Min_Click" ToolTip="Réduire"/>
-          <Button x:Name="MaxBtn" Style="{StaticResource Chrome}" Content="&#xE922;" Click="Max_Click" ToolTip="Agrandir"/>
-          <Button Style="{StaticResource ChromeClose}" Content="&#xE8BB;" Click="Close_Click" ToolTip="Fermer"/>
+          <Button Style="{StaticResource Chrome}" Content="&#xE921;" Click="Min_Click" ToolTip="{DynamicResource s.x06}"/>
+          <Button x:Name="MaxBtn" Style="{StaticResource Chrome}" Content="&#xE922;" Click="Max_Click" ToolTip="{DynamicResource s.x07}"/>
+          <Button Style="{StaticResource ChromeClose}" Content="&#xE8BB;" Click="Close_Click" ToolTip="{DynamicResource s.x05}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
           <!-- Emblème : losange de faction cerclé d'or -->
@@ -200,9 +204,9 @@
             </Border>
             <TextBlock Text="⚔" FontSize="14" Foreground="#FFF5E0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1"/>
           </Grid>
-          <TextBlock Text="Optimisation de Windows" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="17"
+          <TextBlock Text="{DynamicResource s.x08}" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="17"
                      Foreground="{StaticResource GoldGrad}" VerticalAlignment="Center" Margin="12,0,0,0"/>
-          <TextBlock Text="pour World of Warcraft" FontFamily="{StaticResource Display}" FontSize="13" Foreground="{StaticResource Ink2}"
+          <TextBlock Text="{DynamicResource s.x09}" FontFamily="{StaticResource Display}" FontSize="13" Foreground="{StaticResource Ink2}"
                      VerticalAlignment="Center" Margin="10,2,0,0"/>
         </StackPanel>
       </DockPanel>
@@ -229,22 +233,22 @@
         <DockPanel Margin="14,18,14,16">
           <Border DockPanel.Dock="Bottom" Style="{StaticResource Card}" Padding="14,12">
             <StackPanel>
-              <TextBlock Text="TON PC" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Ink3}"/>
-              <TextBlock x:Name="SysInfo" Text="Lecture…" FontSize="12" Foreground="{StaticResource Ink2}" TextWrapping="Wrap" Margin="0,6,0,10"/>
+              <TextBlock Text="{DynamicResource s.x10}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Ink3}"/>
+              <TextBlock x:Name="SysInfo" Text="{DynamicResource s.x11}" FontSize="12" Foreground="{StaticResource Ink2}" TextWrapping="Wrap" Margin="0,6,0,10"/>
               <Button Style="{StaticResource Ghost}" Click="OpenBackups_Click" Padding="10,6" FontSize="12"
-                      ToolTip="Chaque réglage est sauvegardé avant d'être changé.">
+                      ToolTip="{DynamicResource s.x12}">
                 <StackPanel Orientation="Horizontal">
                   <TextBlock Text="&#xE8B7;" FontFamily="{StaticResource Icons}" Margin="0,1,8,0"/>
-                  <TextBlock Text="Sauvegardes"/>
+                  <TextBlock Text="{DynamicResource s.x13}"/>
                 </StackPanel>
               </Button>
             </StackPanel>
           </Border>
           <StackPanel>
-            <RadioButton x:Name="NavWow" Style="{StaticResource Nav}" Tag="&#xE7FC;" Content="World of Warcraft" IsChecked="True" Checked="Nav_Checked"/>
-            <RadioButton x:Name="NavOpti" Style="{StaticResource Nav}" Tag="&#xE945;" Content="Windows" Checked="Nav_Checked"/>
-            <RadioButton x:Name="NavJournal" Style="{StaticResource Nav}" Tag="&#xE9D9;" Content="Journal Windows" Checked="Nav_Checked"/>
-            <RadioButton x:Name="NavApps" Style="{StaticResource Nav}" Tag="&#xE7B8;" Content="Applis ouvertes" Checked="Nav_Checked"/>
+            <RadioButton x:Name="NavWow" Style="{StaticResource Nav}" Tag="&#xE7FC;" Content="{DynamicResource s.x14}" IsChecked="True" Checked="Nav_Checked"/>
+            <RadioButton x:Name="NavOpti" Style="{StaticResource Nav}" Tag="&#xE945;" Content="{DynamicResource s.x15}" Checked="Nav_Checked"/>
+            <RadioButton x:Name="NavJournal" Style="{StaticResource Nav}" Tag="&#xE9D9;" Content="{DynamicResource s.x16}" Checked="Nav_Checked"/>
+            <RadioButton x:Name="NavApps" Style="{StaticResource Nav}" Tag="&#xE7B8;" Content="{DynamicResource s.x17}" Checked="Nav_Checked"/>
           </StackPanel>
         </DockPanel>
       </Border>
@@ -262,17 +266,17 @@
                 <Button Style="{StaticResource Ghost}" Click="WowPick_Click" Margin="0,0,8,0">
                   <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE8B7;" FontFamily="{StaticResource Icons}" Margin="0,1,8,0"/>
-                    <TextBlock Text="Choisir le dossier de WoW"/>
+                    <TextBlock Text="{DynamicResource s.x18}"/>
                   </StackPanel>
                 </Button>
-                <Button Style="{StaticResource Ghost}" Click="WowReload_Click" ToolTip="Relire">
+                <Button Style="{StaticResource Ghost}" Click="WowReload_Click" ToolTip="{DynamicResource s.x19}">
                   <TextBlock Text="&#xE72C;" FontFamily="{StaticResource Icons}"/>
                 </Button>
               </StackPanel>
               <StackPanel>
-                <TextBlock Text="World of Warcraft" Style="{StaticResource H1}"/>
+                <TextBlock Text="{DynamicResource s.x14}" Style="{StaticResource H1}"/>
                 <TextBlock Style="{StaticResource Sub}" FontSize="14" Margin="0,6,0,0"
-                           Text="Les réglages qui comptent pour WoW. Ceux de Windows sont dans l'onglet « Windows »."/>
+                           Text="{DynamicResource s.x20}"/>
               </StackPanel>
             </DockPanel>
 
@@ -281,9 +285,9 @@
             <!-- Introuvable -->
             <Border x:Name="WowNone" Style="{StaticResource Card}" Padding="24,20" Margin="0,0,0,14" Visibility="Collapsed">
               <StackPanel>
-                <TextBlock Text="WoW introuvable" Style="{StaticResource H2}" Foreground="{StaticResource Gold}"/>
+                <TextBlock Text="{DynamicResource s.x21}" Style="{StaticResource H2}" Foreground="{StaticResource Gold}"/>
                 <TextBlock Style="{StaticResource Sub}" FontSize="14" Margin="0,6,0,0"
-                           Text="Clique « Choisir le dossier de WoW » et montre le dossier « World of Warcraft » (celui qui contient _retail_, _classic_…)."/>
+                           Text="{DynamicResource s.x22}"/>
               </StackPanel>
             </Border>
 
@@ -305,10 +309,10 @@
                   </WrapPanel>
                 </StackPanel>
                 <Button Grid.Column="1" x:Name="CacheBtn" Style="{StaticResource Ghost}" Click="WowCache_Click" VerticalAlignment="Center"
-                        ToolTip="WoW refait son cache tout seul. Ça corrige souvent les bugs d'affichage et les chargements bizarres.">
+                        ToolTip="{DynamicResource s.x23}">
                   <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE74D;" FontFamily="{StaticResource Icons}" Margin="0,1,8,0"/>
-                    <TextBlock x:Name="CacheBtnWowText" Text="Vider le cache de WoW"/>
+                    <TextBlock x:Name="CacheBtnWowText" Text="{DynamicResource s.x24}"/>
                   </StackPanel>
                 </Button>
               </Grid>
@@ -321,13 +325,13 @@
                   <Button DockPanel.Dock="Right" Style="{StaticResource Primary}" Click="WowRecommend_Click" VerticalAlignment="Top" Margin="16,0,0,0">
                     <StackPanel Orientation="Horizontal">
                       <TextBlock Text="&#xE734;" FontFamily="{StaticResource Icons}" Margin="0,2,8,0"/>
-                      <TextBlock Text="Cocher les recommandations"/>
+                      <TextBlock Text="{DynamicResource s.x25}"/>
                     </StackPanel>
                   </Button>
                   <StackPanel>
-                    <TextBlock Text="Réglages du jeu" Style="{StaticResource H2}"/>
+                    <TextBlock Text="{DynamicResource s.x26}" Style="{StaticResource H2}"/>
                     <TextBlock Style="{StaticResource Sub}" Margin="0,3,0,0"
-                               Text="Écrits dans le fichier Config.wtf de WoW. WoW doit être fermé pour les changer : il réécrit ses réglages en quittant. Une copie du fichier d'origine est gardée à côté."/>
+                               Text="{DynamicResource s.x27}"/>
                   </StackPanel>
                 </DockPanel>
                 <ItemsControl x:Name="WowList" ItemTemplate="{StaticResource ItemRow}"/>
@@ -335,18 +339,18 @@
             </Border>
 
             <TextBlock Style="{StaticResource Sub}" FontSize="11" Foreground="{StaticResource Ink3}" Margin="4,18,0,0"
-                       Text="Application gratuite et non officielle, sans lien avec Blizzard Entertainment. World of Warcraft est une marque de Blizzard Entertainment, Inc."/>
+                       Text="{DynamicResource s.x28}"/>
           </StackPanel>
         </ScrollViewer>
 
         <Border Grid.Row="1" Background="{DynamicResource Bg2}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="32,14,28,14">
           <DockPanel>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-              <Button x:Name="WowCancelBtn" Style="{StaticResource Ghost}" Content="Annuler" Margin="0,0,10,0" Click="WowCancel_Click"/>
-              <Button x:Name="WowApplyBtn" Style="{StaticResource Primary}" Content="Appliquer" Click="WowApply_Click"/>
+              <Button x:Name="WowCancelBtn" Style="{StaticResource Ghost}" Content="{DynamicResource s.x29}" Margin="0,0,10,0" Click="WowCancel_Click"/>
+              <Button x:Name="WowApplyBtn" Style="{StaticResource Primary}" Content="{DynamicResource s.x30}" Click="WowApply_Click"/>
             </StackPanel>
             <StackPanel VerticalAlignment="Center">
-              <TextBlock x:Name="WowPendingText" Text="Aucun changement en attente." FontWeight="SemiBold" FontSize="14"/>
+              <TextBlock x:Name="WowPendingText" Text="{DynamicResource s.x31}" FontWeight="SemiBold" FontSize="14"/>
               <TextBlock x:Name="WowResultText" FontSize="12" Foreground="{StaticResource Ink2}" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,3,0,0"/>
             </StackPanel>
           </DockPanel>
@@ -365,13 +369,13 @@
               <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" Click="Reload_Click" VerticalAlignment="Top">
                 <StackPanel Orientation="Horizontal">
                   <TextBlock Text="&#xE72C;" FontFamily="{StaticResource Icons}" Margin="0,1,8,0"/>
-                  <TextBlock Text="Relire l'état"/>
+                  <TextBlock Text="{DynamicResource s.x32}"/>
                 </StackPanel>
               </Button>
               <StackPanel>
-                <TextBlock Text="Optimisation" Style="{StaticResource H1}"/>
+                <TextBlock Text="{DynamicResource s.x33}" Style="{StaticResource H1}"/>
                 <TextBlock Style="{StaticResource Sub}" FontSize="14" Margin="0,6,0,0">
-                  <Run Text="Coché" Foreground="{DynamicResource Brand2}" FontWeight="SemiBold"/><Run Text=" = on fait le ménage (désactivé, bloqué ou retiré). Rien ne change tant que tu n'as pas cliqué « Appliquer »."/>
+                  <Run Text="{DynamicResource s.x34}" Foreground="{DynamicResource Brand2}" FontWeight="SemiBold"/><Run Text="{DynamicResource s.x35}"/>
                 </TextBlock>
               </StackPanel>
             </DockPanel>
@@ -383,39 +387,39 @@
                   <Button DockPanel.Dock="Right" Style="{StaticResource Primary}" Click="Recommend_Click" VerticalAlignment="Center" Margin="16,0,0,0">
                     <StackPanel Orientation="Horizontal">
                       <TextBlock Text="&#xE734;" FontFamily="{StaticResource Icons}" Margin="0,2,8,0"/>
-                      <TextBlock Text="Cocher les recommandations"/>
+                      <TextBlock Text="{DynamicResource s.x25}"/>
                     </StackPanel>
                   </Button>
                   <StackPanel>
-                    <TextBlock Text="Tu ne sais pas quoi choisir ?" Style="{StaticResource H2}" FontSize="19"/>
+                    <TextBlock Text="{DynamicResource s.x36}" Style="{StaticResource H2}" FontSize="19"/>
                     <TextBlock Style="{StaticResource Sub}" FontSize="14" Margin="0,4,0,0">
-                      <Run Text="Clique sur le bouton : on coche seulement ce qui est"/><Run Text=" sans risque " FontWeight="SemiBold" Foreground="{StaticResource Ink}"/><Run Text="pour ton PC et tes jeux. Vérifie la liste, puis clique « Appliquer » en bas."/>
+                      <Run Text="{DynamicResource s.x37}"/><Run Text="{DynamicResource s.x38}" FontWeight="SemiBold" Foreground="{StaticResource Ink}"/><Run Text="{DynamicResource s.x39}"/>
                     </TextBlock>
                   </StackPanel>
                 </DockPanel>
                 <WrapPanel Margin="0,16,0,0">
-                  <TextBlock Text="Afficher :" Style="{StaticResource Sub}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                  <RadioButton x:Name="ViewSimple" Style="{StaticResource Pill}" GroupName="vue" Content="★ Recommandé seulement" IsChecked="True" Checked="View_Checked"/>
-                  <RadioButton x:Name="ViewAll" Style="{StaticResource Pill}" GroupName="vue" Content="Tout voir" Checked="View_Checked"/>
+                  <TextBlock Text="{DynamicResource s.x40}" Style="{StaticResource Sub}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                  <RadioButton x:Name="ViewSimple" Style="{StaticResource Pill}" GroupName="vue" Content="{DynamicResource s.x41}" IsChecked="True" Checked="View_Checked"/>
+                  <RadioButton x:Name="ViewAll" Style="{StaticResource Pill}" GroupName="vue" Content="{DynamicResource s.x42}" Checked="View_Checked"/>
                 </WrapPanel>
                 <WrapPanel Margin="0,14,0,0">
                   <Border CornerRadius="999" Padding="8,1,8,2" Background="{DynamicResource BrandSoft}" Margin="0,0,6,4">
-                    <TextBlock Text="★ Recommandé" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brand2}"/>
+                    <TextBlock Text="{DynamicResource s.x43}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brand2}"/>
                   </Border>
-                  <TextBlock Text="sans risque, à cocher     " FontSize="12" Foreground="{StaticResource Ink2}" Margin="0,0,0,4"/>
+                  <TextBlock Text="{DynamicResource s.x44}" FontSize="12" Foreground="{StaticResource Ink2}" Margin="0,0,0,4"/>
                   <Border CornerRadius="999" Padding="8,1,8,2" Background="#0DFFFFFF" Margin="0,0,6,4">
-                    <TextBlock Text="Au choix" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Ink3}"/>
+                    <TextBlock Text="{DynamicResource s.x45}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Ink3}"/>
                   </Border>
-                  <TextBlock Text="dépend si tu t'en sers     " FontSize="12" Foreground="{StaticResource Ink2}" Margin="0,0,0,4"/>
+                  <TextBlock Text="{DynamicResource s.x46}" FontSize="12" Foreground="{StaticResource Ink2}" Margin="0,0,0,4"/>
                   <Border CornerRadius="999" Padding="8,1,8,2" Background="{StaticResource GoldSoft}" Margin="0,0,6,4">
-                    <TextBlock Text="À garder" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Gold}"/>
+                    <TextBlock Text="{DynamicResource s.x47}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Gold}"/>
                   </Border>
-                  <TextBlock Text="utile au PC ou aux jeux, n'y touche pas" FontSize="12" Foreground="{StaticResource Ink2}" Margin="0,0,0,4"/>
+                  <TextBlock Text="{DynamicResource s.x48}" FontSize="12" Foreground="{StaticResource Ink2}" Margin="0,0,0,4"/>
                 </WrapPanel>
               </StackPanel>
             </Border>
 
-            <TextBlock x:Name="OptiLoading" Text="Lecture des réglages…" Style="{StaticResource Sub}" Margin="0,0,0,16"/>
+            <TextBlock x:Name="OptiLoading" Text="{DynamicResource s.x49}" Style="{StaticResource Sub}" Margin="0,0,0,16"/>
 
             <ItemsControl x:Name="SectionsList">
               <ItemsControl.ItemTemplate>
@@ -423,7 +427,7 @@
                   <Border Style="{StaticResource Card}" Padding="18,18,18,10" Margin="0,0,0,16">
                     <StackPanel>
                       <DockPanel Margin="6,0,6,12">
-                        <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" Content="Tout cocher" Padding="10,5" FontSize="12"
+                        <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" Content="{DynamicResource s.x50}" Padding="10,5" FontSize="12"
                                 VerticalAlignment="Top" Tag="{Binding}" Click="CheckSection_Click"
                                 Visibility="{Binding AllowAll, Converter={StaticResource BoolToVis}}"/>
                         <StackPanel>
@@ -444,12 +448,12 @@
                 <Button x:Name="CleanBtn" DockPanel.Dock="Right" Style="{StaticResource Ghost}" Click="Clean_Click" VerticalAlignment="Center">
                   <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE74D;" FontFamily="{StaticResource Icons}" Margin="0,1,8,0"/>
-                    <TextBlock x:Name="CleanBtnText" Text="Vider"/>
+                    <TextBlock x:Name="CleanBtnText" Text="{DynamicResource s.x51}"/>
                   </StackPanel>
                 </Button>
                 <StackPanel>
-                  <TextBlock Text="Nettoyage" Style="{StaticResource H2}"/>
-                  <TextBlock x:Name="TempText" Text="Fichiers temporaires : calcul…" Style="{StaticResource Sub}" Margin="0,3,0,0"/>
+                  <TextBlock Text="{DynamicResource s.x52}" Style="{StaticResource H2}"/>
+                  <TextBlock x:Name="TempText" Text="{DynamicResource s.x53}" Style="{StaticResource Sub}" Margin="0,3,0,0"/>
                 </StackPanel>
               </DockPanel>
             </Border>
@@ -460,11 +464,11 @@
         <Border Grid.Row="1" Background="{DynamicResource Bg2}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="32,14,28,14">
           <DockPanel>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-              <Button x:Name="CancelBtn" Style="{StaticResource Ghost}" Content="Annuler" Margin="0,0,10,0" Click="Cancel_Click"/>
-              <Button x:Name="ApplyBtn" Style="{StaticResource Primary}" Content="Appliquer" Click="Apply_Click"/>
+              <Button x:Name="CancelBtn" Style="{StaticResource Ghost}" Content="{DynamicResource s.x29}" Margin="0,0,10,0" Click="Cancel_Click"/>
+              <Button x:Name="ApplyBtn" Style="{StaticResource Primary}" Content="{DynamicResource s.x30}" Click="Apply_Click"/>
             </StackPanel>
             <StackPanel VerticalAlignment="Center">
-              <TextBlock x:Name="PendingText" Text="Aucun changement en attente." FontWeight="SemiBold" FontSize="14"/>
+              <TextBlock x:Name="PendingText" Text="{DynamicResource s.x31}" FontWeight="SemiBold" FontSize="14"/>
               <TextBlock x:Name="ResultText" FontSize="12" Foreground="{StaticResource Ink2}" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,3,0,0"/>
             </StackPanel>
           </DockPanel>
@@ -477,16 +481,16 @@
         <StackPanel Margin="32,26,28,32" MaxWidth="1000">
           <DockPanel Margin="0,0,0,18">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
-              <RadioButton x:Name="P24" Style="{StaticResource Pill}" Content="24 h" GroupName="periode" Checked="Period_Checked"/>
-              <RadioButton x:Name="P7" Style="{StaticResource Pill}" Content="7 jours" GroupName="periode" IsChecked="True" Checked="Period_Checked"/>
-              <RadioButton x:Name="P30" Style="{StaticResource Pill}" Content="30 jours" GroupName="periode" Checked="Period_Checked"/>
-              <Button Style="{StaticResource Ghost}" Margin="6,0,0,0" Click="JournalReload_Click" ToolTip="Relire le journal">
+              <RadioButton x:Name="P24" Style="{StaticResource Pill}" Content="{DynamicResource s.x54}" GroupName="periode" Checked="Period_Checked"/>
+              <RadioButton x:Name="P7" Style="{StaticResource Pill}" Content="{DynamicResource s.x55}" GroupName="periode" IsChecked="True" Checked="Period_Checked"/>
+              <RadioButton x:Name="P30" Style="{StaticResource Pill}" Content="{DynamicResource s.x56}" GroupName="periode" Checked="Period_Checked"/>
+              <Button Style="{StaticResource Ghost}" Margin="6,0,0,0" Click="JournalReload_Click" ToolTip="{DynamicResource s.x57}">
                 <TextBlock Text="&#xE72C;" FontFamily="{StaticResource Icons}"/>
               </Button>
             </StackPanel>
             <StackPanel>
-              <TextBlock Text="Journal Windows" Style="{StaticResource H1}"/>
-              <TextBlock Text="Les erreurs et avertissements de Windows, regroupés et expliqués en français." Style="{StaticResource Sub}" FontSize="14" Margin="0,6,0,0"/>
+              <TextBlock Text="{DynamicResource s.x16}" Style="{StaticResource H1}"/>
+              <TextBlock Text="{DynamicResource s.x58}" Style="{StaticResource Sub}" FontSize="14" Margin="0,6,0,0"/>
             </StackPanel>
           </DockPanel>
 
@@ -499,8 +503,8 @@
               </Grid.ColumnDefinitions>
               <Border x:Name="VerdictBar" Background="{StaticResource Ink3}" CornerRadius="16,0,0,16"/>
               <StackPanel Grid.Column="1" Margin="20,18,22,18">
-                <TextBlock Text="RÉSUMÉ" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Ink3}"/>
-                <TextBlock x:Name="VerdictText" Text="Lecture du journal…" FontFamily="{StaticResource Display}" FontWeight="Bold"
+                <TextBlock Text="{DynamicResource s.x59}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Ink3}"/>
+                <TextBlock x:Name="VerdictText" Text="{DynamicResource s.x60}" FontFamily="{StaticResource Display}" FontWeight="Bold"
                            FontSize="22" Margin="0,4,0,6"/>
                 <TextBlock x:Name="SummaryText" Style="{StaticResource Sub}" FontSize="14" LineHeight="21"/>
               </StackPanel>
@@ -512,37 +516,37 @@
             <Border Style="{StaticResource Stat}">
               <StackPanel>
                 <TextBlock Text="{Binding Restarts}" Style="{StaticResource StatNum}" Foreground="{Binding Restarts, Converter={StaticResource CountBrush}}"/>
-                <TextBlock Text="Redémarrages imprévus" Style="{StaticResource StatLabel}"/>
+                <TextBlock Text="{DynamicResource s.x61}" Style="{StaticResource StatLabel}"/>
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Stat}">
               <StackPanel>
                 <TextBlock Text="{Binding Bsod}" Style="{StaticResource StatNum}" Foreground="{Binding Bsod, Converter={StaticResource CountBrush}, ConverterParameter=bad}"/>
-                <TextBlock Text="Écrans bleus" Style="{StaticResource StatLabel}"/>
+                <TextBlock Text="{DynamicResource s.x62}" Style="{StaticResource StatLabel}"/>
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Stat}">
               <StackPanel>
                 <TextBlock Text="{Binding Gpu}" Style="{StaticResource StatNum}" Foreground="{Binding Gpu, Converter={StaticResource CountBrush}}"/>
-                <TextBlock Text="Plantages du pilote graphique" Style="{StaticResource StatLabel}"/>
+                <TextBlock Text="{DynamicResource s.x63}" Style="{StaticResource StatLabel}"/>
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Stat}">
               <StackPanel>
                 <TextBlock Text="{Binding Hardware}" Style="{StaticResource StatNum}" Foreground="{Binding Hardware, Converter={StaticResource CountBrush}}"/>
-                <TextBlock Text="Erreurs matérielles" Style="{StaticResource StatLabel}"/>
+                <TextBlock Text="{DynamicResource s.x64}" Style="{StaticResource StatLabel}"/>
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Stat}">
               <StackPanel>
                 <TextBlock Text="{Binding Disk}" Style="{StaticResource StatNum}" Foreground="{Binding Disk, Converter={StaticResource CountBrush}, ConverterParameter=bad}"/>
-                <TextBlock Text="Problèmes de disque" Style="{StaticResource StatLabel}"/>
+                <TextBlock Text="{DynamicResource s.x65}" Style="{StaticResource StatLabel}"/>
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Stat}">
               <StackPanel>
                 <TextBlock Text="{Binding AppCrashes}" Style="{StaticResource StatNum}" Foreground="{Binding AppCrashes, Converter={StaticResource CountBrush}}"/>
-                <TextBlock Text="Applis plantées" Style="{StaticResource StatLabel}"/>
+                <TextBlock Text="{DynamicResource s.x66}" Style="{StaticResource StatLabel}"/>
               </StackPanel>
             </Border>
           </UniformGrid>
@@ -552,15 +556,15 @@
             <StackPanel>
               <DockPanel Margin="0,0,0,6">
                 <CheckBox x:Name="ShowNoise" DockPanel.Dock="Right" Style="{StaticResource GwCheck}" Checked="ShowNoise_Changed" Unchecked="ShowNoise_Changed">
-                  <TextBlock Text="Montrer les messages sans gravité" FontSize="13" Foreground="{StaticResource Ink2}"/>
+                  <TextBlock Text="{DynamicResource s.x67}" FontSize="13" Foreground="{StaticResource Ink2}"/>
                 </CheckBox>
                 <StackPanel>
-                  <TextBlock Text="Détail" Style="{StaticResource H2}"/>
+                  <TextBlock Text="{DynamicResource s.x68}" Style="{StaticResource H2}"/>
                   <TextBlock x:Name="DetailSub" Style="{StaticResource Sub}" Margin="0,3,0,0"/>
                 </StackPanel>
               </DockPanel>
               <ItemsControl x:Name="EventsList" ItemTemplate="{StaticResource EventRow}"/>
-              <TextBlock x:Name="EventsEmpty" Text="Aucun message pour cette période. 🎉" Style="{StaticResource Sub}" Margin="0,10,0,14" Visibility="Collapsed"/>
+              <TextBlock x:Name="EventsEmpty" Text="{DynamicResource s.x69}" Style="{StaticResource Sub}" Margin="0,10,0,14" Visibility="Collapsed"/>
             </StackPanel>
           </Border>
         </StackPanel>
@@ -575,17 +579,17 @@
               <Button Style="{StaticResource Ghost}" Click="OpenTaskManager_Click" Margin="0,0,8,0">
                 <StackPanel Orientation="Horizontal">
                   <TextBlock Text="&#xE9D9;" FontFamily="{StaticResource Icons}" Margin="0,1,8,0"/>
-                  <TextBlock Text="Gestionnaire des tâches"/>
+                  <TextBlock Text="{DynamicResource s.x70}"/>
                 </StackPanel>
               </Button>
-              <Button Style="{StaticResource Ghost}" Click="AppsReload_Click" ToolTip="Actualiser">
+              <Button Style="{StaticResource Ghost}" Click="AppsReload_Click" ToolTip="{DynamicResource s.x71}">
                 <TextBlock Text="&#xE72C;" FontFamily="{StaticResource Icons}"/>
               </Button>
             </StackPanel>
             <StackPanel>
-              <TextBlock Text="Applis ouvertes" Style="{StaticResource H1}"/>
+              <TextBlock Text="{DynamicResource s.x17}" Style="{StaticResource H1}"/>
               <TextBlock Style="{StaticResource Sub}" FontSize="14" Margin="0,6,0,0"
-                         Text="Les programmes hors Microsoft qui prennent le plus de mémoire. Un gros programme « sans fenêtre » a souvent été mal fermé (un jeu, un launcher) : ferme-le avant de jouer."/>
+                         Text="{DynamicResource s.x72}"/>
             </StackPanel>
           </DockPanel>
 
@@ -595,7 +599,7 @@
               <DockPanel>
                 <TextBlock x:Name="MemPercent" DockPanel.Dock="Right" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="18"/>
                 <StackPanel>
-                  <TextBlock Text="MÉMOIRE DU PC (RAM)" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Ink3}"/>
+                  <TextBlock Text="{DynamicResource s.x73}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Ink3}"/>
                   <TextBlock x:Name="MemText" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="20" Margin="0,4,0,0"/>
                 </StackPanel>
               </DockPanel>
@@ -615,7 +619,7 @@
           <Border x:Name="OtherSessionsCard" Style="{StaticResource Card}" Background="{StaticResource GoldSoft}" BorderBrush="#55FFC94D"
                   Padding="22,18" Margin="0,0,0,14" Visibility="Collapsed">
             <DockPanel>
-              <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" Content="Gestionnaire des tâches" Click="OpenTaskManager_Click"
+              <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" Content="{DynamicResource s.x70}" Click="OpenTaskManager_Click"
                       VerticalAlignment="Center" Margin="16,0,0,0"/>
               <StackPanel>
                 <TextBlock x:Name="OtherSessionsTitle" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="17" Foreground="{StaticResource Gold}"/>
@@ -628,7 +632,7 @@
 
           <Border Style="{StaticResource Card}" Padding="16,16,16,10">
             <StackPanel>
-              <TextBlock x:Name="AppsSub" Style="{StaticResource Sub}" Margin="8,0,0,10" Text="Lecture…"/>
+              <TextBlock x:Name="AppsSub" Style="{StaticResource Sub}" Margin="8,0,0,10" Text="{DynamicResource s.x11}"/>
               <ItemsControl x:Name="AppsList" ItemTemplate="{StaticResource AppRow}"/>
             </StackPanel>
           </Border>

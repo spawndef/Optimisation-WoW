@@ -45,13 +45,13 @@ public class WowFlavor
     /// <summary>Vide le dossier Cache (WoW le refait tout seul). Corrige souvent les bugs d'affichage et de chargement.</summary>
     public string? ClearCache()
     {
-        if (Running) return "Ferme WoW avant de vider son cache.";
+        if (Running) return L.F("Ferme WoW avant de vider son cache.", "Close WoW before clearing its cache.");
         try
         {
             if (Directory.Exists(CacheDir)) Directory.Delete(CacheDir, true);
             return null;
         }
-        catch (Exception e) { return "Échec : " + e.Message; }
+        catch (Exception e) { return L.F("Échec : ", "Failed: ") + e.Message; }
     }
 }
 
@@ -107,37 +107,37 @@ public static class Wow
     {
         new WtfTweak
         {
-            Flavor = f, Title = $"Limite de FPS = ton écran ({hz} Hz)",
-            Desc = "Sans limite, la carte graphique tourne à 100 % pour des images que ton écran n'affiche même pas : plus de chaleur, de bruit et de saccades.",
+            Flavor = f, Title = L.F($"Limite de FPS = ton écran ({hz} Hz)", $"FPS cap = your screen ({hz} Hz)"),
+            Desc = L.F("Sans limite, la carte graphique tourne à 100 % pour des images que ton écran n'affiche même pas : plus de chaleur, de bruit et de saccades.", "Without a cap, the graphics card runs at 100% for frames your screen can't even show: more heat, noise and stutter."),
             Values = { ("useMaxFPS", "1", "0"), ("maxFPS", hz.ToString(), null) },
         },
         new WtfTweak
         {
-            Flavor = f, Title = "30 FPS quand WoW est en arrière-plan",
-            Desc = "Quand tu passes sur Discord ou le navigateur, WoW ralentit et laisse la place au reste du PC.",
+            Flavor = f, Title = L.F("30 FPS quand WoW est en arrière-plan", "30 FPS when WoW is in the background"),
+            Desc = L.F("Quand tu passes sur Discord ou le navigateur, WoW ralentit et laisse la place au reste du PC.", "When you switch to Discord or the browser, WoW slows down and leaves room for the rest of the PC."),
             Values = { ("useMaxFPSBk", "1", "0"), ("maxFPSBk", "30", null) },
         },
         new WtfTweak
         {
             Flavor = f, Title = "DirectX 12",
-            Desc = "Le moteur graphique le plus récent de WoW : il utilise mieux les processeurs à plusieurs cœurs.",
+            Desc = L.F("Le moteur graphique le plus récent de WoW : il utilise mieux les processeurs à plusieurs cœurs.", "WoW's newest graphics engine: it makes better use of multi-core CPUs."),
             Values = { ("GxApi", "D3D12", null) },
         },
         new GpuPrefTweak
         {
-            Flavor = f, Title = "Carte graphique puissante pour WoW",
-            Desc = "Dit à Windows d'utiliser ta vraie carte graphique pour WoW, jamais l'écran intégré au processeur.",
+            Flavor = f, Title = L.F("Carte graphique puissante pour WoW", "High-performance GPU for WoW"),
+            Desc = L.F("Dit à Windows d'utiliser ta vraie carte graphique pour WoW, jamais l'écran intégré au processeur.", "Tells Windows to use your real graphics card for WoW, never the CPU's built-in graphics."),
         },
         new WtfTweak
         {
-            Flavor = f, Reco = Reco.AuChoix, Title = "Échelle de rendu 80 %",
-            Desc = "Le jeu calcule l'image un peu plus petite puis l'agrandit. Gros gain de FPS en 1440p et 4K, image un peu plus douce.",
+            Flavor = f, Reco = Reco.AuChoix, Title = L.F("Échelle de rendu 80 %", "Render scale 80%"),
+            Desc = L.F("Le jeu calcule l'image un peu plus petite puis l'agrandit. Gros gain de FPS en 1440p et 4K, image un peu plus douce.", "The game renders a slightly smaller image, then upscales it. Big FPS gain at 1440p and 4K, slightly softer image."),
             Values = { ("renderScale", "0.8", null) },
         },
         new WtfTweak
         {
-            Flavor = f, Reco = Reco.AuChoix, Title = "VSync désactivée",
-            Desc = "Avec la limite de FPS, la VSync ajoute surtout du délai. Remets-la si tu vois l'image se « déchirer ».",
+            Flavor = f, Reco = Reco.AuChoix, Title = L.F("VSync désactivée", "VSync off"),
+            Desc = L.F("Avec la limite de FPS, la VSync ajoute surtout du délai. Remets-la si tu vois l'image se « déchirer ».", "With the FPS cap, VSync mostly adds input lag. Turn it back on if you see screen tearing."),
             Values = { ("vsync", "0", "1") },
         },
     };
@@ -157,8 +157,8 @@ public class WtfTweak : Item
     public WowFlavor Flavor { get; init; } = null!;
     /// <summary>(clé, valeur optimisée, valeur par défaut ; null = enlever la ligne et laisser WoW décider)</summary>
     public List<(string key, string on, string? off)> Values { get; init; } = new();
-    public override string LabelOn => "Activé";
-    public override string LabelOff => "Pas fait";
+    public override string LabelOn => L.F("Activé", "Done");
+    public override string LabelOff => L.F("Pas fait", "Not done");
 
     static readonly HashSet<string> Backed = new(StringComparer.OrdinalIgnoreCase);
 
@@ -170,7 +170,7 @@ public class WtfTweak : Item
 
     public override Task<string?> ApplyAsync()
     {
-        if (Flavor.Running) return Task.FromResult<string?>("Ferme WoW d'abord : il réécrit ses réglages en quittant.");
+        if (Flavor.Running) return Task.FromResult<string?>(L.F("Ferme WoW d'abord : il réécrit ses réglages en quittant.", "Close WoW first: it rewrites its settings when it exits."));
         var path = Flavor.ConfigPath;
         try
         {
@@ -191,7 +191,7 @@ public class WtfTweak : Item
             File.WriteAllLines(path, lines, new UTF8Encoding(false));
             return Task.FromResult<string?>(null);
         }
-        catch (Exception e) { return Task.FromResult<string?>("Échec : " + e.Message); }
+        catch (Exception e) { return Task.FromResult<string?>(L.F("Échec : ", "Failed: ") + e.Message); }
     }
 
     static string? KeyOf(string line)
@@ -219,8 +219,8 @@ public class GpuPrefTweak : Item
 {
     public WowFlavor Flavor { get; init; } = null!;
     const string Key = @"Software\Microsoft\DirectX\UserGpuPreferences";
-    public override string LabelOn => "Activé";
-    public override string LabelOff => "Pas fait";
+    public override string LabelOn => L.F("Activé", "Done");
+    public override string LabelOff => L.F("Pas fait", "Not done");
 
     public override void Refresh()
     {
@@ -238,7 +238,7 @@ public class GpuPrefTweak : Item
             else k.DeleteValue(Flavor.Exe, false);
             return Task.FromResult<string?>(null);
         }
-        catch (Exception e) { return Task.FromResult<string?>("Échec : " + e.Message); }
+        catch (Exception e) { return Task.FromResult<string?>(L.F("Échec : ", "Failed: ") + e.Message); }
     }
 }
 
