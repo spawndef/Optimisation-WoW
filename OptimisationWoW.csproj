@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>Optimisation-WoW</AssemblyName>
+    <RootNamespace>OptimisationWoW</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>icone.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <Product>Optimisation de Windows pour World of Warcraft</Product>
+    <Company>GhostWalk Studio</Company>
+    <Copyright>© 2026 GhostWalk Studio — licence MIT</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="icone.ico" />
+    <Resource Include="Fonts\Cinzel.ttf" />
+    <Resource Include="Fonts\CinzelDecorative-Bold.ttf" />
+  </ItemGroup>
+
+</Project>
